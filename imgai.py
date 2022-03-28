@@ -5,9 +5,9 @@ from imageai.Detection import ObjectDetection
 detector = ObjectDetection()
 detector.setModelTypeAsRetinaNet()
 detector.setModelPath(os.path.join(os.getcwd(), "data",
-                      "resnet", "resnet50_coco_best_v2.0.1.h5"))
+                      "retinanet", "resnet50_coco_best_v2.0.1.h5"))
 detector.loadModel()
-detector.customObjects(person=True)
+detections = detector.CustomObjects(person=True)
 
 video_capture = cv2.VideoCapture(0)
 
@@ -18,8 +18,8 @@ while True:
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     # detect people in the image
-    people = detector.detectObjectsFromImage(
-        input_image=frame, output_type="array")
+    _, people = detector.detectObjectsFromImage(
+        input_image=frame, input_type="array", output_type="array", custom_objects=detections)
 
     # draw bounding boxes around detected people
     for person in people:

@@ -1,3 +1,6 @@
+# This has proven to be the best on by far for accuracy
+# but is terribly slow on CPU. Barely runs on an overclocked i9
+
 import cv2
 import os
 from imageai.Detection import ObjectDetection

@@ -5,16 +5,13 @@ import imutils
 haar_upper_body_cascade = cv2.CascadeClassifier(
     "data/haarcascades/haarcascade_upperbody.xml")
 
-# Uncomment this for real-time webcam detection
-# If you have more than one webcam & your 1st/original webcam is occupied,
-# you may increase the parameter to 1 or respectively to detect with other webcams, depending on which one you wanna use.
-
-# video_capture = cv2.VideoCapture(0)
-
 # For real-time sample video detection
 video_capture = cv2.VideoCapture(0)
 video_width = video_capture.get(3)
 video_height = video_capture.get(4)
+
+print("Video width: ", video_width)
+print("Video height: ", video_height)
 
 while True:
     ret, frame = video_capture.read()

@@ -8,6 +8,7 @@ imageai = "*"
 opencv-python = "*"
 keras = "*"
 tensorflow-cpu = "*"
+imutils = "*"
 
 [dev-packages]
 autopep8 = "*"

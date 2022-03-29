@@ -1,6 +1,6 @@
 # from https://github.com/Limerin555/Real-time_Upper_Body_Detection/blob/e796cb43ffe3987ce3fbd8051c5f66b4fe340171/real_time_upper_body_detection.py
 import cv2
-import imutils
+# import imutils
 
 haar_upper_body_cascade = cv2.CascadeClassifier(
     "data/haarcascades/haarcascade_upperbody.xml")
@@ -17,7 +17,7 @@ while True:
     ret, frame = video_capture.read()
 
     # resize original video for better viewing performance
-    frame = imutils.resize(frame, width=1000)
+    # frame = imutils.resize(frame, width=video_width)
     # convert video to grayscale
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 

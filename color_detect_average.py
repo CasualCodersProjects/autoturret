@@ -26,11 +26,30 @@ def main():
 
         for x in range(0, video_width, chunk_width):
             for y in range(0, video_height, chunk_height):
-                red_value = np.mean(
-                    frame[y:y + chunk_height, x:x + chunk_width, 2])
-                pixel_groups.append(red_value)
 
-        print(pixel_groups)
+                avg_red_value = np.mean(
+                    frame[y:y + chunk_height, x:x + chunk_width, 2])
+                avg_green_value = np.mean(
+                    frame[y:y + chunk_height, x:x + chunk_width, 1])
+                avg_blue_value = np.mean(
+                    frame[y:y + chunk_height, x:x + chunk_width, 0])
+
+                if avg_blue_value < 128 and avg_green_value < 128:
+                    pixel_groups.append((avg_red_value, y, x))
+
+                # pixel_groups.append((avg_red_value, y, x))
+
+        # print(pixel_groups)
+
+        most_red = (0, 0, 0)
+
+        for hue, py, px in pixel_groups:
+            red = (hue, py, px)
+            if red[0] > most_red[0]:
+                most_red = red
+
+        if most_red != (0, 0, 0):
+            cv2.circle(frame, (most_red[1], most_red[2]), 10, (0, 0, 255), -1)
 
         cv2.imshow('Video', frame)
 

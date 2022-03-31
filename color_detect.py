@@ -1,31 +1,9 @@
 import cv2
 # import imutils
-import asyncio
+import numpy as np
 
 
-def chunk_work(width, height):
-    return [
-        (0, 0, width//2, height//2),
-        (width//2, 0, width, height//2),
-        (0, height//2, width//2, height),
-        (width//2, height//2, width, height)
-    ]
-
-
-async def worker(frame, start_x, end_x, start_y, end_y):
-    most_blue = (0, 0, 0)
-    for i in range(start_x, end_x):
-        for j in range(start_y, end_y):
-            blue = frame[j, i, 0]
-            green = frame[j, i, 1]
-            red = frame[j, i, 2]
-            if blue > most_blue[0]:
-                if green < blue/2 or red < blue/2:
-                    most_blue = (blue, i, j)
-    return most_blue
-
-
-async def main():
+def main():
 
     video_capture = cv2.VideoCapture(0)
     video_width = int(video_capture.get(3))
@@ -34,26 +12,23 @@ async def main():
     print("Video width: ", video_width)
     print("Video height: ", video_height)
 
-    chunks = chunk_work(video_width, video_height)
-
     while True:
         _, frame = video_capture.read()
 
-        most_blue = (0, 0, 0)
+        most_red = (0, 0, 0)
 
-        blues = []
+        reds = []
 
-        for chunk in chunks:
-            start_x, start_y, end_x, end_y = chunk
-            blues.append(asyncio.ensure_future(
-                worker(frame, start_x, end_x, start_y, end_y)))
+        reds = np.argwhere(cv2.inRange(frame, (0, 0, 175), (50, 50, 255)))
 
-        for blue in blues:
-            blue = await blue
-            if blue[0] > most_blue[0]:
-                most_blue = blue
+        for px, py in reds:
+            red_value = frame[px, py, 0]
+            red = (red_value, py, px)
+            if red[0] > most_red[0]:
+                most_red = red
 
-        cv2.circle(frame, (most_blue[1], most_blue[2]), 10, (0, 0, 255), -1)
+        if most_red != (0, 0, 0):
+            cv2.circle(frame, (most_red[1], most_red[2]), 10, (0, 0, 255), -1)
 
         cv2.imshow('Video', frame)
 
@@ -63,5 +38,6 @@ async def main():
     video_capture.release()
     cv2.destroyAllWindows()
 
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()

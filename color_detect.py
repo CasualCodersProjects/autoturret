@@ -8,9 +8,6 @@ def main():
     rect_width = 50
     rect_height = 50
 
-    frame_counter = 0
-    frame_counter_max = 10
-
     video_capture = cv2.VideoCapture(0)
     video_width = int(video_capture.get(3))
     video_height = int(video_capture.get(4))
@@ -23,15 +20,9 @@ def main():
 
         most_red = (0, 0, 0)
 
-        reds = []
+        mask = cv2.inRange(frame, (0, 0, 128), (80, 80, 255))
 
-        reds = np.argwhere(cv2.inRange(frame, (0, 0, 125), (50, 50, 255)))
-
-        # for px, py in reds:
-        #     red_value = frame[px, py, 0]
-        #     red = (red_value, py, px)
-        #     if red[0] > most_red[0]:
-        #         most_red = red
+        reds = np.argwhere(mask)
 
         xs = []
         ys = []

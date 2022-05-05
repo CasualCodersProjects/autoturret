@@ -79,7 +79,3 @@ if __name__ == "__main__":
                 print(frame[target[1], target[0]])
                 lastPrint = time.time()
 
-        cv2.imshow('Video', frame)
-
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break

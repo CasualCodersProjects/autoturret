@@ -3,7 +3,7 @@ import time
 
 
 class Stepper():
-    def __init__(self, step_pin, direction_pin, enable_pin, sleep_time=0.001):
+    def __init__(self, step_pin, direction_pin, enable_pin, sleep_time=0.0005):
         GPIO.setmode(GPIO.BOARD)
         self.direction_pin = direction_pin
         self.step_pin = step_pin

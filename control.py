@@ -1,6 +1,6 @@
 # tests controlling the steppers
 # import keyboard
-# from stepper_control import Stepper
+from stepper_control import Stepper
 import RPi.GPIO as GPIO
 
 try:

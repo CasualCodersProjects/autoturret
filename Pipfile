@@ -6,9 +6,11 @@ name = "pypi"
 [packages]
 opencv-python = "*"
 numpy = "*"
+"rpi.gpio" = "*"
 
 [dev-packages]
 autopep8 = "*"
+keyboard = "*"
 
 [requires]
 python_version = "3.9"

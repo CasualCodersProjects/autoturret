@@ -14,6 +14,7 @@ class Stepper():
         GPIO.setup(self.step_pin, GPIO.OUT)
         GPIO.setup(self.direction_pin, GPIO.OUT)
         GPIO.setup(self.enable_pin, GPIO.OUT)
+        GPIO.output(self.enable_pin, GPIO.LOW)
 
     def step(self, direction, steps=200):
         GPIO.output(self.direction_pin, direction)
@@ -22,3 +23,9 @@ class Stepper():
             time.sleep(self.sleep_time)
             GPIO.output(self.step_pin, GPIO.LOW)
             time.sleep(self.sleep_time)
+
+
+if __name__ == "__main__":
+    stepper = Stepper(step_pin=12, direction_pin=16, enable_pin=8)
+    stepper.setup()
+    stepper.step(direction=1, steps=200)

@@ -1,10 +1,11 @@
 import numpy as np
 import cv2
 import time
+import platform
 
-LOWER_MASK_LOWER_RED = np.array([0, 50, 100])
-LOWER_MASK_UPPER_RED = np.array([10, 255, 255])
-UPPER_MASK_LOWER_RED = np.array([170, 50, 100])
+LOWER_MASK_LOWER_RED = np.array([0, 50, 20])
+LOWER_MASK_UPPER_RED = np.array([5, 255, 255])
+UPPER_MASK_LOWER_RED = np.array([175, 50, 20])
 UPPER_MASK_UPPER_RED = np.array([180, 255, 255])
 RECT_WIDTH = 50
 RECT_HEIGHT = 50
@@ -12,6 +13,11 @@ RECT_HEIGHT = 50
 
 def to_hsv(frame):
     return cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+
+
+def convert_bgr_to_hsv(b, g, r):
+    h, s, v = cv2.cvtColor(np.array([[[b, g, r]]]), cv2.COLOR_BGR2HSV)[0][0]
+    return h, s, v
 
 
 def get_reds(frame):
@@ -76,6 +82,12 @@ if __name__ == "__main__":
             # print the target every second
             if lastPrint < time.time() - 1:
                 print(target)
-                print(frame[target[1], target[0]])
+                b, g, r = frame[target[1], target[0]]
+                print(convert_bgr_to_hsv(b, g, r))
                 lastPrint = time.time()
 
+        if not 'arm' in platform.machine():
+            cv2.imshow('Video', frame)
+
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break

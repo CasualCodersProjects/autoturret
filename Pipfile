@@ -7,6 +7,7 @@ name = "pypi"
 opencv-python = "*"
 numpy = "*"
 "rpi.gpio" = "*"
+fire = "*"
 
 [dev-packages]
 autopep8 = "*"

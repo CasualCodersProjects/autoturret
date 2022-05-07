@@ -6,7 +6,12 @@ from detect import detect_hostiles
 from stepper_control import Stepper
 
 THRESHOLD = 50
-STEPS_PER_LOOP = 10
+STEPS_PER_LOOP = 20
+STEP_X_PIN = 12
+DIR_X_PIN = 16
+DIR_Y_PIN = 40
+STEP_Y_PIN = 38
+ENABLE_PIN = 8
 
 
 def draw_hostile_box(frame, target, radius):
@@ -20,7 +25,7 @@ x_stepper = None
 y_stepper = None
 
 
-def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False, scale=0, output_scale=0):
+def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False, scale=0, output_scale=0, hostile_output=False):
     video_capture = cv2.VideoCapture(0)
 
     _, frame = video_capture.read()
@@ -38,6 +43,8 @@ def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False
     shoot_range_x = range(center_x - threshold_x, center_x + threshold_x + 1)
     shoot_range_y = range(center_y - threshold_y, center_y + threshold_y + 1)
 
+    hostile_count = 0
+
     print("Video width: ", width)
     print("Video height: ", height)
     print("Center x: ", center_x)
@@ -48,67 +55,89 @@ def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False
     print("Shoot range y: ", shoot_range_y)
 
     if not dry_run:
-        x_stepper = Stepper(shoot_range_x, STEPS_PER_LOOP, scale=scale)
-        y_stepper = Stepper(shoot_range_y, STEPS_PER_LOOP, scale=scale)
+        x_stepper = Stepper(step_pin=STEP_X_PIN, direction_pin=DIR_X_PIN, enable_pin=ENABLE_PIN)
+        y_stepper = Stepper(step_pin=STEP_Y_PIN, direction_pin=DIR_Y_PIN, enable_pin=ENABLE_PIN)
+        x_stepper.setup()
+        y_stepper.setup()
 
-    while True:
-        _, frame = video_capture.read()
+    try:
+        while True:
+            _, frame = video_capture.read()
 
-        if scale:
-            # scale the image
-            frame = cv2.resize(
-                frame, (int(width * scale), int(height * scale)))
-
-        x, y, r, mask = detect_hostiles(frame)
-
-        if verbose:
-            print(x, y, r)
-
-        if r > THRESHOLD:
-            draw_hostile_box(frame, (int(x), int(y)), int(r))
-            if x > center_x:
-                if not dry_run:
-                    if verbose:
-                        print("Moving right")
-                    x_stepper.step(direction=1, steps=STEPS_PER_LOOP)
-                if verbose:
-                    print("Hostile is to the right")
-            elif x < center_x:
-                if not dry_run:
-                    if verbose:
-                        print("Moving left")
-                    x_stepper.step(direction=0, steps=STEPS_PER_LOOP)
-                if verbose:
-                    print("Hostile is to the left")
-            if y > center_y:
-                if not dry_run:
-                    if verbose:
-                        print("Moving down")
-                    y_stepper.step(direction=1, steps=STEPS_PER_LOOP)
-                if verbose:
-                    print("Hostile is below")
-            elif y < center_y:
-                if not dry_run:
-                    if verbose:
-                        print("Moving up")
-                if verbose:
-                    print("Hostile is above")
-            if x in shoot_range_x and y in shoot_range_y:
-                # if dry_run:
-                if verbose:
-                    print("Shooting")
-
-        
-        if display_mask:
-            cv2.imshow("Mask", mask)
-        elif display_frame:
-            if output_scale:
+            if scale:
+                # scale the image
                 frame = cv2.resize(
-                    frame, (int(width * output_scale), int(height * output_scale)))
-            cv2.imshow('Video', frame)
+                    frame, (int(width * scale), int(height * scale)))
+                # get the center
+                center_x = width // 2
+                center_y = height // 2
 
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
+                threshold_y = 50
+                threshold_x = 50
+
+                shoot_range_x = range(center_x - threshold_x, center_x + threshold_x + 1)
+                shoot_range_y = range(center_y - threshold_y, center_y + threshold_y + 1)
+
+
+            x, y, r, mask = detect_hostiles(frame)
+
+            if verbose:
+                print(x, y, r)
+
+            if r > THRESHOLD:
+                draw_hostile_box(frame, (int(x), int(y)), int(r))
+                if hostile_output:
+                    hostile_count += 1
+                    cv2.imwrite(f"hostile_{hostile_count}.jpg", frame)
+                if x > center_x:
+                    if not dry_run:
+                        if verbose:
+                            print("Moving right")
+                        x_stepper.step(direction=1, steps=STEPS_PER_LOOP)
+                    if verbose:
+                        print("Hostile is to the right")
+                elif x < center_x:
+                    if not dry_run:
+                        if verbose:
+                            print("Moving left")
+                        x_stepper.step(direction=0, steps=STEPS_PER_LOOP)
+                    if verbose:
+                        print("Hostile is to the left")
+                if y > center_y:
+                    if not dry_run:
+                        if verbose:
+                            print("Moving down")
+                        y_stepper.step(direction=1, steps=STEPS_PER_LOOP)
+                    if verbose:
+                        print("Hostile is below")
+                elif y < center_y:
+                    if not dry_run:
+                        if verbose:
+                            print("Moving up")
+                        y_stepper.step(direction=0, steps=STEPS_PER_LOOP)
+                    if verbose:
+                        print("Hostile is above")
+                if x in shoot_range_x and y in shoot_range_y:
+                    # if dry_run:
+                    if verbose:
+                        print("Shooting")
+
+            
+            if display_mask:
+                cv2.imshow("Mask", mask)
+            elif display_frame:
+                if output_scale:
+                    frame = cv2.resize(
+                        frame, (int(width * output_scale), int(height * output_scale)))
+                cv2.imshow('Video', frame)
+
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
+    finally:
+        video_capture.release()
+        if not dry_run:
+            x_stepper.cleanup()
+            y_stepper.cleanup()
 
 
 if __name__ == "__main__":

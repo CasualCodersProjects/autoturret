@@ -23,6 +23,9 @@ class Stepper():
             time.sleep(self.sleep_time)
             GPIO.output(self.step_pin, GPIO.LOW)
             time.sleep(self.sleep_time)
+    
+    def cleanup(self):
+        GPIO.cleanup()
 
 
 if __name__ == "__main__":

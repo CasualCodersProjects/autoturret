@@ -3,8 +3,10 @@ import cv2
 import fire
 
 from detect import detect_hostiles
+from stepper_control import Stepper
 
 THRESHOLD = 50
+STEPS_PER_LOOP = 10
 
 
 def draw_hostile_box(frame, target, radius):
@@ -12,6 +14,10 @@ def draw_hostile_box(frame, target, radius):
                   (target[0] + radius // 2, target[1] + radius // 2), (0, 0, 255), 2)
     cv2.putText(frame, "Hostile Detected",
                 (target[0] - 5 - radius // 2, target[1] - 15 - radius // 2), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+
+
+x_stepper = None
+y_stepper = None
 
 
 def sentry(dry_run=False, verbose=False, display_mask=False, scale=0, output_scale=0):
@@ -41,6 +47,10 @@ def sentry(dry_run=False, verbose=False, display_mask=False, scale=0, output_sca
     print("Shoot range x: ", shoot_range_x)
     print("Shoot range y: ", shoot_range_y)
 
+    if not dry_run:
+        x_stepper = Stepper(shoot_range_x, STEPS_PER_LOOP, scale=scale)
+        y_stepper = Stepper(shoot_range_y, STEPS_PER_LOOP, scale=scale)
+
     while True:
         _, frame = video_capture.read()
 
@@ -57,25 +67,36 @@ def sentry(dry_run=False, verbose=False, display_mask=False, scale=0, output_sca
         if r > THRESHOLD:
             draw_hostile_box(frame, (int(x), int(y)), int(r))
             if x > center_x:
-                if dry_run:
+                if not dry_run:
                     if verbose:
-                        print("Hostile is to the right")
+                        print("Moving right")
+                    x_stepper.step(direction=1, steps=STEPS_PER_LOOP)
+                if verbose:
+                    print("Hostile is to the right")
             elif x < center_x:
-                if dry_run:
+                if not dry_run:
                     if verbose:
-                        print("Hostile is to the left")
+                        print("Moving left")
+                    x_stepper.step(direction=0, steps=STEPS_PER_LOOP)
+                if verbose:
+                    print("Hostile is to the left")
             if y > center_y:
-                if dry_run:
+                if not dry_run:
                     if verbose:
-                        print("Hostile is below")
+                        print("Moving down")
+                    y_stepper.step(direction=1, steps=STEPS_PER_LOOP)
+                if verbose:
+                    print("Hostile is below")
             elif y < center_y:
-                if dry_run:
+                if not dry_run:
                     if verbose:
-                        print("Hostile is above")
+                        print("Moving up")
+                if verbose:
+                    print("Hostile is above")
             if x in shoot_range_x and y in shoot_range_y:
-                if dry_run:
-                    if verbose:
-                        print("Shooting")
+                # if dry_run:
+                if verbose:
+                    print("Shooting")
 
         if dry_run:
             if display_mask:

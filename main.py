@@ -20,7 +20,7 @@ x_stepper = None
 y_stepper = None
 
 
-def sentry(dry_run=False, verbose=False, display_mask=False, scale=0, output_scale=0):
+def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False, scale=0, output_scale=0):
     video_capture = cv2.VideoCapture(0)
 
     _, frame = video_capture.read()
@@ -98,14 +98,14 @@ def sentry(dry_run=False, verbose=False, display_mask=False, scale=0, output_sca
                 if verbose:
                     print("Shooting")
 
-        if dry_run:
-            if display_mask:
-                cv2.imshow("Mask", mask)
-            else:
-                if output_scale:
-                    frame = cv2.resize(
-                        frame, (int(width * output_scale), int(height * output_scale)))
-                cv2.imshow('Video', frame)
+        
+        if display_mask:
+            cv2.imshow("Mask", mask)
+        elif display_frame:
+            if output_scale:
+                frame = cv2.resize(
+                    frame, (int(width * output_scale), int(height * output_scale)))
+            cv2.imshow('Video', frame)
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break

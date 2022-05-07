@@ -3,7 +3,11 @@ import cv2
 import fire
 
 from detect import detect_hostiles
-from stepper_control import Stepper
+try:
+    from stepper_control import Stepper
+except ModuleNotFoundError:
+    from dummy_stepper_control import Stepper
+from video_get import VideoGet
 
 THRESHOLD = 50
 STEPS_PER_LOOP = 20
@@ -25,10 +29,13 @@ x_stepper = None
 y_stepper = None
 
 
-def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False, scale=0, output_scale=0, hostile_output=False):
-    video_capture = cv2.VideoCapture(0)
+def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False, scale=0, output_scale=0, hostile_output=False, shoot_box_x=50, shoot_box_y=50):
+    video_getter = VideoGet(0).start()
 
-    _, frame = video_capture.read()
+    frame = None
+
+    while frame is None:
+        frame = video_getter.frame
 
     # get the frame height and width
     height, width = frame.shape[:2]
@@ -37,11 +44,16 @@ def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False
     center_x = width // 2
     center_y = height // 2
 
-    threshold_y = 50
-    threshold_x = 50
+    shoot_range_x = range(center_x - shoot_box_x, center_x + shoot_box_x + 1)
+    shoot_range_y = range(center_y - shoot_box_y, center_y + shoot_box_y + 1)
 
-    shoot_range_x = range(center_x - threshold_x, center_x + threshold_x + 1)
-    shoot_range_y = range(center_y - threshold_y, center_y + threshold_y + 1)
+    if scale:
+        height = int(height * scale)
+        width = int(width * scale)
+        center_x = width // 2
+        center_y = height // 2
+        shoot_range_x = range(center_x - shoot_box_x, center_x + shoot_box_x + 1)
+        shoot_range_y = range(center_y - shoot_box_y, center_y + shoot_box_y + 1)
 
     hostile_count = 0
 
@@ -49,8 +61,8 @@ def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False
     print("Video height: ", height)
     print("Center x: ", center_x)
     print("Center y: ", center_y)
-    print("Threshold x: ", threshold_x)
-    print("Threshold y: ", threshold_y)
+    print("Shoot Box X: ", shoot_box_x)
+    print("Shoot Box Y: ", shoot_box_y)
     print("Shoot range x: ", shoot_range_x)
     print("Shoot range y: ", shoot_range_y)
 
@@ -62,22 +74,12 @@ def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False
 
     try:
         while True:
-            _, frame = video_capture.read()
+            frame = video_getter.frame
 
             if scale:
                 # scale the image
                 frame = cv2.resize(
                     frame, (int(width * scale), int(height * scale)))
-                # get the center
-                center_x = width // 2
-                center_y = height // 2
-
-                threshold_y = 50
-                threshold_x = 50
-
-                shoot_range_x = range(center_x - threshold_x, center_x + threshold_x + 1)
-                shoot_range_y = range(center_y - threshold_y, center_y + threshold_y + 1)
-
 
             x, y, r, mask = detect_hostiles(frame)
 
@@ -118,7 +120,9 @@ def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False
                     if verbose:
                         print("Hostile is above")
                 if x in shoot_range_x and y in shoot_range_y:
-                    # if dry_run:
+                    if not dry_run:
+                        # put shooting code here
+                        pass
                     if verbose:
                         print("Shooting")
 
@@ -134,7 +138,7 @@ def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
     finally:
-        video_capture.release()
+        video_getter.stop()
         if not dry_run:
             x_stepper.cleanup()
             y_stepper.cleanup()

@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 
+from video_get import VideoGet
+
 LOWER_MASK_LOWER_RED = np.array([0, 50, 20])
 LOWER_MASK_UPPER_RED = np.array([5, 255, 255])
 UPPER_MASK_LOWER_RED = np.array([175, 50, 20])
@@ -43,14 +45,16 @@ def detect_hostiles(frame, lower_mask_lower_red=LOWER_MASK_LOWER_RED, lower_mask
 
 
 if __name__ == "__main__":
-    video_capture = cv2.VideoCapture(0)
+
+    video_getter = VideoGet(0).start()
 
     while True:
-        _, frame = video_capture.read()
+        frame = video_getter.frame
         x, y, radius, mask = detect_hostiles(frame)
         cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 0), 2)
         print(x, y, radius)
         cv2.imshow("Video", frame)
         # cv2.imshow("Mask", mask)
         if cv2.waitKey(1) & 0xFF == ord("q"):
+            video_getter.stop()
             break

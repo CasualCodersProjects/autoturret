@@ -45,6 +45,10 @@ def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False
 
     shoot_range_x = range(center_x - shoot_box_x, center_x + shoot_box_x + 1)
     shoot_range_y = range(center_y - shoot_box_y, center_y + shoot_box_y + 1)
+    deadzone_x_range = range(center_x - shoot_box_x // 2,
+                             center_x + shoot_box_x // 2 + 1)
+    deadzone_y_range = range(center_y - shoot_box_y // 2,
+                             center_y + shoot_box_y // 2 + 1)
 
     if scale:
         height = int(height * scale)
@@ -66,6 +70,8 @@ def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False
     print("Shoot Box Y: ", shoot_box_y)
     print("Shoot range x: ", shoot_range_x)
     print("Shoot range y: ", shoot_range_y)
+    print("Deadzone x: ", deadzone_x_range)
+    print("Deadzone y: ", deadzone_y_range)
 
     if not dry_run:
         x_stepper = StepperThread(
@@ -87,7 +93,7 @@ def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False
             if verbose:
                 print(x, y, r)
 
-            if r > min_radius:
+            if r >= min_radius and not x in deadzone_x_range and not y in deadzone_y_range:
                 draw_hostile_box(frame, (int(x), int(y)), int(r))
                 if hostile_output:
                     hostile_count += 1

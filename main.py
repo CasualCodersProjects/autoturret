@@ -9,7 +9,7 @@ except ModuleNotFoundError:
     from dummy_stepper_control_thread import StepperThread
 from video_get import VideoGet
 
-STEPS_PER_LOOP = 20
+SLEEP_TIME = 0.001
 STEP_X_PIN = 12
 DIR_X_PIN = 16
 DIR_Y_PIN = 40
@@ -69,9 +69,9 @@ def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False
 
     if not dry_run:
         x_stepper = StepperThread(
-            step_pin=STEP_X_PIN, direction_pin=DIR_X_PIN, enable_pin=ENABLE_PIN).start()
+            step_pin=STEP_X_PIN, direction_pin=DIR_X_PIN, enable_pin=ENABLE_PIN, sleep_time=SLEEP_TIME).start()
         y_stepper = StepperThread(step_pin=STEP_Y_PIN,
-                                  direction_pin=DIR_Y_PIN, enable_pin=ENABLE_PIN).start()
+                                  direction_pin=DIR_Y_PIN, enable_pin=ENABLE_PIN, sleep_time=SLEEP_TIME).start()
 
     try:
         while True:

@@ -4,12 +4,11 @@ import fire
 
 from detect import detect_hostiles
 try:
-    from stepper_control import Stepper
+    from stepper_control_thread import StepperThread
 except ModuleNotFoundError:
-    from dummy_stepper_control import Stepper
+    from dummy_stepper_control_thread import StepperThread
 from video_get import VideoGet
 
-THRESHOLD = 50
 STEPS_PER_LOOP = 20
 STEP_X_PIN = 12
 DIR_X_PIN = 16
@@ -29,7 +28,7 @@ x_stepper = None
 y_stepper = None
 
 
-def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False, scale=0, output_scale=0, hostile_output=False, shoot_box_x=50, shoot_box_y=50):
+def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False, min_radius=50, scale=0, output_scale=0, hostile_output=False, shoot_box_x=50, shoot_box_y=50):
     video_getter = VideoGet(0).start()
 
     frame = None
@@ -52,8 +51,10 @@ def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False
         width = int(width * scale)
         center_x = width // 2
         center_y = height // 2
-        shoot_range_x = range(center_x - shoot_box_x, center_x + shoot_box_x + 1)
-        shoot_range_y = range(center_y - shoot_box_y, center_y + shoot_box_y + 1)
+        shoot_range_x = range(center_x - shoot_box_x,
+                              center_x + shoot_box_x + 1)
+        shoot_range_y = range(center_y - shoot_box_y,
+                              center_y + shoot_box_y + 1)
 
     hostile_count = 0
 
@@ -67,10 +68,10 @@ def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False
     print("Shoot range y: ", shoot_range_y)
 
     if not dry_run:
-        x_stepper = Stepper(step_pin=STEP_X_PIN, direction_pin=DIR_X_PIN, enable_pin=ENABLE_PIN)
-        y_stepper = Stepper(step_pin=STEP_Y_PIN, direction_pin=DIR_Y_PIN, enable_pin=ENABLE_PIN)
-        x_stepper.setup()
-        y_stepper.setup()
+        x_stepper = StepperThread(
+            step_pin=STEP_X_PIN, direction_pin=DIR_X_PIN, enable_pin=ENABLE_PIN).start()
+        y_stepper = StepperThread(step_pin=STEP_Y_PIN,
+                                  direction_pin=DIR_Y_PIN, enable_pin=ENABLE_PIN).start()
 
     try:
         while True:
@@ -86,7 +87,7 @@ def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False
             if verbose:
                 print(x, y, r)
 
-            if r > THRESHOLD:
+            if r > min_radius:
                 draw_hostile_box(frame, (int(x), int(y)), int(r))
                 if hostile_output:
                     hostile_count += 1
@@ -95,28 +96,28 @@ def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False
                     if not dry_run:
                         if verbose:
                             print("Moving right")
-                        x_stepper.step(direction=1, steps=STEPS_PER_LOOP)
+                        x_stepper.set_direction(direction=1)
                     if verbose:
                         print("Hostile is to the right")
                 elif x < center_x:
                     if not dry_run:
                         if verbose:
                             print("Moving left")
-                        x_stepper.step(direction=0, steps=STEPS_PER_LOOP)
+                        x_stepper.set_direction(direction=0)
                     if verbose:
                         print("Hostile is to the left")
                 if y > center_y:
                     if not dry_run:
                         if verbose:
                             print("Moving down")
-                        y_stepper.step(direction=1, steps=STEPS_PER_LOOP)
+                        y_stepper.set_direction(direction=1)
                     if verbose:
                         print("Hostile is below")
                 elif y < center_y:
                     if not dry_run:
                         if verbose:
                             print("Moving up")
-                        y_stepper.step(direction=0, steps=STEPS_PER_LOOP)
+                        y_stepper.set_direction(direction=0)
                     if verbose:
                         print("Hostile is above")
                 if x in shoot_range_x and y in shoot_range_y:
@@ -125,8 +126,10 @@ def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False
                         pass
                     if verbose:
                         print("Shooting")
+            else:
+                x_stepper.stop()
+                y_stepper.stop()
 
-            
             if display_mask:
                 cv2.imshow("Mask", mask)
             elif display_frame:

@@ -7113,6 +7113,11 @@ react-error-overlay@^6.0.11:
   resolved "https://registry.yarnpkg.com/react-error-overlay/-/react-error-overlay-6.0.11.tgz#92835de5841c5cf08ba00ddd2d677b6d17ff9adb"
   integrity sha512-/6UZ2qgEyH2aqzYZgQPxEnz33NJ2gNsnHA2o5+o4wW9bLM/JYQitNP9xPhsXwC08hMMovfGe/8retsdDsczPRg==
 
+react-gamepads@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/react-gamepads/-/react-gamepads-1.0.0.tgz#72373c6bd332e0c42bb2d1584413d71fdb34f5da"
+  integrity sha512-jfmIBHI1EgjhEUOGTYnrzfhM6fV75d/rZAEuG90fwYBJ2mP2z+Z42UoodXa3OD00q9zGFeQCESlSY20UjAIGzA==
+
 react-is@^16.13.1:
   version "16.13.1"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
@@ -7187,6 +7192,11 @@ react-scripts@5.0.1:
     workbox-webpack-plugin "^6.4.1"
   optionalDependencies:
     fsevents "^2.3.2"
+
+react-use-websocket@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/react-use-websocket/-/react-use-websocket-4.0.0.tgz#81aeefbbf7156883002600d6306091c3e5cb364b"
+  integrity sha512-S8IsuABHh/tquSIuQ8WMZRb0TnHlvquPv6HloFD0HNZm3a/fJqrda7Stke4s7FhUGvk3WrtWmNvKKWhHmQIwfA==
 
 react@^18.1.0:
   version "18.1.0"

@@ -28,10 +28,10 @@ STEP_Y_PIN = 38
 ENABLE_PIN = 8
 
 # recv format
-# -1 -1 0
-# first number is x direction
-# second number is y direction
-# third number is shoot
+# x1
+# y1
+# s1
+# x2
 x_stepper = StepperThread(
     step_pin=STEP_X_PIN, direction_pin=DIR_X_PIN, enable_pin=ENABLE_PIN, sleep_time=SLEEP_TIME).start()
 y_stepper = StepperThread(step_pin=STEP_Y_PIN,
@@ -48,20 +48,36 @@ async def handler(websocket):
     async for message in websocket:
         if type(message) == bytes:
             message = message.decode("utf-8")
-        message = message.split(" ")
-        if len(message) != 3:
-            await websocket.send("Invalid message")
-            continue
+        # message = message.split(" ")
+        # if len(message) != 3:
+        #     await websocket.send("Invalid message")
+        #     continue
+        # try:
+        #     x = int(message[0])
+        #     y = int(message[1])
+        #     shoot = int(message[2])
+        # except ValueError:
+        #     await websocket.send("Invalid message")
+        #     continue
+        # x_stepper.set_direction(x)
+        # y_stepper.set_direction(y)
+        # print(x, y, shoot)
+        axis = message[0]
         try:
-            x = int(message[0])
-            y = int(message[1])
-            shoot = int(message[2])
+            direction = int(message[1]) - 1
         except ValueError:
             await websocket.send("Invalid message")
             continue
-        x_stepper.set_direction(x)
-        y_stepper.set_direction(y)
-        print(x, y, shoot)
+        if axis == "x":
+            x_stepper.set_direction(direction)
+        elif axis == "y":
+            y_stepper.set_direction(direction)
+        elif axis == "s":
+            if direction == 1 or direction == 0:
+                print("shoot")
+            else:
+                print("no shoot")
+        print(message)
 
 
 async def main():

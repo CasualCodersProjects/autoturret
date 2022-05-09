@@ -18,7 +18,6 @@ except ModuleNotFoundError:
     from dummy_stepper_control_thread import StepperThread
 except RuntimeError:
     from dummy_stepper_control_thread import StepperThread
-# from video_get import VideoGet
 
 SLEEP_TIME = 0.001
 STEP_X_PIN = 12
@@ -45,23 +44,10 @@ def thread_cleanup(_):
 
 
 async def handler(websocket):
+
     async for message in websocket:
         if type(message) == bytes:
             message = message.decode("utf-8")
-        # message = message.split(" ")
-        # if len(message) != 3:
-        #     await websocket.send("Invalid message")
-        #     continue
-        # try:
-        #     x = int(message[0])
-        #     y = int(message[1])
-        #     shoot = int(message[2])
-        # except ValueError:
-        #     await websocket.send("Invalid message")
-        #     continue
-        # x_stepper.set_direction(x)
-        # y_stepper.set_direction(y)
-        # print(x, y, shoot)
         axis = message[0]
         try:
             direction = int(message[1]) - 1

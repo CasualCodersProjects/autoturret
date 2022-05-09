@@ -9,6 +9,7 @@ class StepperThread:
     def start(self):
         self.setup()
         print("Dummy Stepper Thread started")
+        return self
 
     def setup(self):
         print("Dummy Stepper Thread setup")
@@ -21,3 +22,6 @@ class StepperThread:
 
     def cleanup(self):
         print("Dummy Stepper Thread cleaned up")
+
+    def close(self):
+        self.cleanup()

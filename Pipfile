@@ -8,6 +8,7 @@ opencv-python = "*"
 numpy = "*"
 "rpi.gpio" = "*"
 fire = "*"
+websockets = "*"
 
 [dev-packages]
 autopep8 = "*"
@@ -18,3 +19,4 @@ python_version = "3.9"
 
 [scripts]
 main = "python main.py"
+server = "python server.py"

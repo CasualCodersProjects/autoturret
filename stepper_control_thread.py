@@ -37,6 +37,9 @@ class StepperThread:
     def cleanup(self):
         self.kill = True
 
+    def close(self):
+        self.cleanup()
+
     def run(self):
         while not self.kill:
             if self.direction != -1:

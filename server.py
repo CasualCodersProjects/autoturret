@@ -44,7 +44,6 @@ def thread_cleanup(_):
 
 
 async def handler(websocket):
-
     async for message in websocket:
         if type(message) == bytes:
             message = message.decode("utf-8")

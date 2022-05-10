@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import useWebSocket, { ReadyState } from "react-use-websocket";
 import { useGamepads } from "react-gamepads";
 import "./App.css";
+import { Button } from "antd";
 
 function App() {
   const [controlWsInput, setControlWsInput] = useState("ws://localhost:8001");
@@ -71,10 +72,10 @@ function App() {
           value={controlWsInput}
           onChange={(e) => setControlWsInput(e.target.value)}
         />
-        <button onClick={() => setControlWsURL(controlWsInput)}>
+        <Button onClick={() => setControlWsURL(controlWsInput)}>
           {" "}
           Connect{" "}
-        </button>
+        </Button>
       </div>
       <div>
         <label>Connection Status:</label>
@@ -83,6 +84,49 @@ function App() {
       <div>
         <label>Click Here To Control:</label>
         <input type="text" onKeyDown={keyDownHandler} onKeyUp={keyUpHandler} />
+      </div>
+      <div>
+        <label>Touch Controls</label>
+        <Button
+          id="up"
+          onTouchStart={() => sendMessage("y1")}
+          onTouchEnd={() => sendMessage("y0")}
+        >
+          {" "}
+          Up{" "}
+        </Button>
+        <Button
+          id="down"
+          onTouchStart={() => sendMessage("y2")}
+          onTouchEnd={() => sendMessage("y0")}
+        >
+          {" "}
+          Down{" "}
+        </Button>
+        <Button
+          id="left"
+          onTouchStart={() => sendMessage("x1")}
+          onTouchEnd={() => sendMessage("x0")}
+        >
+          {" "}
+          Left{" "}
+        </Button>
+        <Button
+          id="right"
+          onTouchStart={() => sendMessage("x2")}
+          onTouchEnd={() => sendMessage("x0")}
+        >
+          {" "}
+          Right{" "}
+        </Button>
+        <Button
+          id="shoot"
+          onTouchStart={() => sendMessage("s1")}
+          onTouchEnd={() => sendMessage("s0")}
+        >
+          {" "}
+          Shoot{" "}
+        </Button>
       </div>
     </div>
   );

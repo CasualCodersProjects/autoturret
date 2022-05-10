@@ -19,7 +19,7 @@ except ModuleNotFoundError:
 except RuntimeError:
     from dummy_stepper_control_thread import StepperThread
 
-SLEEP_TIME = 0.001
+SLEEP_TIME = 0.0005
 STEP_X_PIN = 12
 DIR_X_PIN = 16
 DIR_Y_PIN = 40

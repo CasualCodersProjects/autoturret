@@ -1,15 +1,15 @@
-
+import time
 import cv2
 import fire
 
 from detect import detect_hostiles
 try:
     from stepper_control_thread import StepperThread
-except ModuleNotFoundError:
+except:
     from dummy_stepper_control_thread import StepperThread
 from video_get import VideoGet
 
-SLEEP_TIME = 0.001
+SLEEP_TIME = 0.0025
 STEP_X_PIN = 12
 DIR_X_PIN = 16
 DIR_Y_PIN = 40
@@ -45,10 +45,6 @@ def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False
 
     shoot_range_x = range(center_x - shoot_box_x, center_x + shoot_box_x + 1)
     shoot_range_y = range(center_y - shoot_box_y, center_y + shoot_box_y + 1)
-    deadzone_x_range = range(center_x - shoot_box_x // 2,
-                             center_x + shoot_box_x // 2 + 1)
-    deadzone_y_range = range(center_y - shoot_box_y // 2,
-                             center_y + shoot_box_y // 2 + 1)
 
     if scale:
         height = int(height * scale)
@@ -70,8 +66,6 @@ def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False
     print("Shoot Box Y: ", shoot_box_y)
     print("Shoot range x: ", shoot_range_x)
     print("Shoot range y: ", shoot_range_y)
-    print("Deadzone x: ", deadzone_x_range)
-    print("Deadzone y: ", deadzone_y_range)
 
     if not dry_run:
         x_stepper = StepperThread(
@@ -88,12 +82,15 @@ def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False
                 frame = cv2.resize(
                     frame, (int(width * scale), int(height * scale)))
 
+            start = time.time()
             x, y, r, mask = detect_hostiles(frame)
+            end = time.time()
 
             if verbose:
+                print("Detect time: ", end - start)
                 print(x, y, r)
 
-            if r >= min_radius and not x in deadzone_x_range and not y in deadzone_y_range:
+            if r >= min_radius and not x in shoot_range_x and not y in shoot_range_y:
                 draw_hostile_box(frame, (int(x), int(y)), int(r))
                 if hostile_output:
                     hostile_count += 1
@@ -126,15 +123,16 @@ def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False
                         y_stepper.set_direction(direction=0)
                     if verbose:
                         print("Hostile is above")
-                if x in shoot_range_x and y in shoot_range_y:
-                    if not dry_run:
-                        # put shooting code here
-                        pass
-                    if verbose:
-                        print("Shooting")
+            elif x in shoot_range_x and y in shoot_range_y:
+                if not dry_run:
+                    # put shooting code here
+                    pass
+                if verbose:
+                    print("Shooting")
             else:
-                x_stepper.stop()
-                y_stepper.stop()
+                if not dry_run:
+                    x_stepper.stop()
+                    y_stepper.stop()
 
             if display_mask:
                 cv2.imshow("Mask", mask)

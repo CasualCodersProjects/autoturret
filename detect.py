@@ -48,13 +48,16 @@ if __name__ == "__main__":
 
     video_getter = VideoGet(0).start()
 
-    while True:
-        frame = video_getter.frame
-        x, y, radius, mask = detect_hostiles(frame)
-        cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 0), 2)
-        print(x, y, radius)
-        cv2.imshow("Video", frame)
-        # cv2.imshow("Mask", mask)
-        if cv2.waitKey(1) & 0xFF == ord("q"):
-            video_getter.stop()
-            break
+    try:
+        while True:
+            frame = video_getter.frame
+            x, y, radius, mask = detect_hostiles(frame)
+            cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 0), 2)
+            print(x, y, radius)
+            # cv2.imshow("Video", frame)
+            # cv2.imshow("Mask", mask)
+            if cv2.waitKey(1) & 0xFF == ord("q"):
+                video_getter.stop()
+                break
+    except KeyboardInterrupt:
+        video_getter.stop()

@@ -66,6 +66,7 @@ def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False
     print("Shoot Box Y: ", shoot_box_y)
     print("Shoot range x: ", shoot_range_x)
     print("Shoot range y: ", shoot_range_y)
+    print("Min radius: ", min_radius)
 
     if not dry_run:
         x_stepper = StepperThread(
@@ -123,7 +124,7 @@ def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False
                         y_stepper.set_direction(direction=0)
                     if verbose:
                         print("Hostile is above")
-            elif x in shoot_range_x and y in shoot_range_y:
+            elif r >= min_radius and x in shoot_range_x and y in shoot_range_y:
                 if not dry_run:
                     # put shooting code here
                     pass

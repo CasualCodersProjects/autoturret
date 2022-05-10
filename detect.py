@@ -1,3 +1,5 @@
+import time
+
 import cv2
 import numpy as np
 
@@ -51,13 +53,16 @@ if __name__ == "__main__":
     try:
         while True:
             frame = video_getter.frame
+            start = time.time()
             x, y, radius, mask = detect_hostiles(frame)
-            cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 0), 2)
+            end = time.time()
+            print("Detection Time: ", end - start)
+            # cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 0), 2)
             print(x, y, radius)
             # cv2.imshow("Video", frame)
             # cv2.imshow("Mask", mask)
-            if cv2.waitKey(1) & 0xFF == ord("q"):
-                video_getter.stop()
-                break
+            # if cv2.waitKey(1) & 0xFF == ord("q"):
+            #     video_getter.stop()
+            #     break
     except KeyboardInterrupt:
         video_getter.stop()

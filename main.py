@@ -4,6 +4,7 @@ import fire
 
 from detect import detect_hostiles
 try:
+#    raise AssertionError("This is an error")
     from stepper_control_thread import StepperThread
 except:
     from dummy_stepper_control_thread import StepperThread

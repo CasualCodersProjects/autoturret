@@ -4,18 +4,18 @@ import fire
 
 from detect import detect_hostiles
 try:
-#    raise AssertionError("This is an error")
+    #    raise AssertionError("This is an error")
     from stepper_control_thread import StepperThread
 except:
     from dummy_stepper_control_thread import StepperThread
 from video_get import VideoGet
 
-SLEEP_TIME = 0.0025
 STEP_X_PIN = 12
 DIR_X_PIN = 16
 DIR_Y_PIN = 40
 STEP_Y_PIN = 38
-ENABLE_PIN = 8
+ENABLE_X_PIN = 8
+ENABLE_Y_PIN = 36
 
 
 def draw_hostile_box(frame, target, radius):
@@ -29,7 +29,10 @@ x_stepper = None
 y_stepper = None
 
 
-def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False, min_radius=50, scale=0, output_scale=0, hostile_output=False, shoot_box_x=50, shoot_box_y=50):
+def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False, min_radius=50, scale=0, output_scale=0, hostile_output=False, shoot_box_x=50, shoot_box_y=50, sleep_time=0.0025):
+    '''
+    The main sentry loop.
+    '''
     video_getter = VideoGet(0).start()
 
     frame = None
@@ -71,9 +74,9 @@ def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False
 
     if not dry_run:
         x_stepper = StepperThread(
-            step_pin=STEP_X_PIN, direction_pin=DIR_X_PIN, enable_pin=ENABLE_PIN, sleep_time=SLEEP_TIME).start()
+            step_pin=STEP_X_PIN, direction_pin=DIR_X_PIN, enable_pin=ENABLE_X_PIN, sleep_time=sleep_time).start()
         y_stepper = StepperThread(step_pin=STEP_Y_PIN,
-                                  direction_pin=DIR_Y_PIN, enable_pin=ENABLE_PIN, sleep_time=SLEEP_TIME).start()
+                                  direction_pin=DIR_Y_PIN, enable_pin=ENABLE_Y_PIN, sleep_time=sleep_time).start()
 
     try:
         while True:

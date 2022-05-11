@@ -6,10 +6,10 @@ import RPi.GPIO as GPIO
 
 class StepperThread:
     '''
-    Thread that controls a stepper motor. The movement is continuous rather than stepping.
+    Thread that controls a stepper motor.
     '''
 
-    def __init__(self, step_pin, direction_pin, enable_pin, sleep_time=0.0005):
+    def __init__(self, step_pin, direction_pin, enable_pin, sleep_time=0.0005, continuous=True):
         GPIO.setmode(GPIO.BOARD)
         self.direction_pin = direction_pin
         self.step_pin = step_pin
@@ -19,14 +19,18 @@ class StepperThread:
         self.direction = -1  # this means the steppers are stopped
         self.last_step = 0
         self.process = None
+        self.dir_queue = None
+        self.step_queue = None
+        self.continuous = continuous
 
     def start(self):
         '''
         Sets up the GPIO pins and starts the thread.
         '''
         self.setup()
-        self.queue = Queue()
-        self.process = Process(target=self.run, args=(self.queue,))
+        self.dir_queue = Queue()
+        self.step_queue = Queue()
+        self.process = Process(target=self.run, args=())
         self.process.start()
         return self
 
@@ -46,7 +50,7 @@ class StepperThread:
         '''
         if self.direction != direction:
             self.direction = direction
-            self.queue.put(direction)
+            self.dir_queue.put(direction)
 
     def stop(self):
         '''
@@ -67,27 +71,46 @@ class StepperThread:
         '''
         self.cleanup()
 
-    def run(self, queue):
+    def step(self, direction, steps=200):
+        '''
+        Steps the stepper motor.
+        '''
+        if not self.continuous:
+            self.set_direction(direction)
+            self.step_queue.put(steps)
+
+    def run(self):
         '''
         The main loop of the thread.
         '''
         last_direction = -1
         while not self.kill:
-            if queue.empty():
+            if self.dir_queue.empty():
                 direction = last_direction
             else:
-                direction = queue.get()
+                direction = self.dir_queue.get()
 
             if direction != -1 and direction != last_direction:
                 GPIO.output(self.direction_pin, direction)
 
             last_direction = direction
 
-            if direction != -1:
-                GPIO.output(self.step_pin, GPIO.HIGH)
-                time.sleep(self.sleep_time)
-                GPIO.output(self.step_pin, GPIO.LOW)
-                time.sleep(self.sleep_time)
+            if self.continuous:
+                if direction != -1:
+                    GPIO.output(self.step_pin, GPIO.HIGH)
+                    time.sleep(self.sleep_time)
+                    GPIO.output(self.step_pin, GPIO.LOW)
+                    time.sleep(self.sleep_time)
+            else:
+                if self.step_queue.empty():
+                    steps = 0
+                else:
+                    steps = self.step_queue.get()
+                for _ in range(steps):
+                    GPIO.output(self.step_pin, GPIO.HIGH)
+                    time.sleep(self.sleep_time)
+                    GPIO.output(self.step_pin, GPIO.LOW)
+                    time.sleep(self.sleep_time)
         try:
             GPIO.cleanup()
         except:

@@ -8,10 +8,11 @@ from play_sound import get_sound, play_sound
 
 try:
     from stepper_control_thread import StepperThread
+    from gpio_control import Pin
 except:
     from dummy_stepper_control_thread import StepperThread
+    from dummy_gpio_control import Pin
 
-from gpio_control import Pin
 from video_get import VideoGet
 
 STEP_X_PIN = 12

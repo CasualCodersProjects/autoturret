@@ -47,7 +47,7 @@ class StepperThread:
         GPIO.setup(self.step_pin, GPIO.OUT)
         GPIO.setup(self.direction_pin, GPIO.OUT)
         GPIO.setup(self.enable_pin, GPIO.OUT)
-        GPIO.output(self.enable_pin, GPIO.LOW)
+        GPIO.output(self.enable_pin, GPIO.HIGH)
 
     # direction is 0 for forward, 1 for backwards, -1 for stopped
     def set_direction(self, direction):
@@ -117,6 +117,8 @@ class StepperThread:
                     time.sleep(self.sleep_time)
                     GPIO.output(self.step_pin, GPIO.LOW)
                     time.sleep(self.sleep_time)
+
+        GPIO.output(self.enable_pin, GPIO.LOW)
         try:
             GPIO.cleanup()
         except:

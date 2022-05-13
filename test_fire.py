@@ -12,15 +12,11 @@ try:
     while True:
         for i in range(5):
             GPIO.output(AIR_PIN, GPIO.HIGH)
-            time.sleep(1)
+            time.sleep(.1)
             GPIO.output(AIR_PIN, GPIO.LOW)
-            time.sleep(1)
+            time.sleep(.1)
+        time.sleep(3)
 
-        for i in range(5):
-            GPIO.output(AIR_PIN, GPIO.LOW)
-            time.sleep(0.5)
-            GPIO.output(AIR_PIN, GPIO.HIGH)
-            time.sleep(0.5)
 finally:
     GPIO.output(AIR_PIN, GPIO.LOW)
     GPIO.cleanup()

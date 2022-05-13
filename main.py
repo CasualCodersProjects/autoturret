@@ -163,7 +163,7 @@ def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False
                 if verbose:
                     print("Shooting")
                     if sound:
-                        if time.time() > last_sound + sound_gap:
+                        if time.time() > last_sound + 2:
                             play_sound(get_sound('turret_deploy'))
                             last_sound = time.time()
             else:

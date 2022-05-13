@@ -9,7 +9,7 @@ class StepperThread:
     Thread that controls a stepper motor.
     '''
 
-    def __init__(self, step_pin, direction_pin, enable_pin, sleep_time=0.0005, continuous=True):
+    def __init__(self, step_pin, direction_pin, enable_pin, sleep_time=0.0005, continuous=True, steps_per_rev=1600, max_step=400, min_step=0):
         GPIO.setmode(GPIO.BOARD)
         self.direction_pin = direction_pin
         self.step_pin = step_pin
@@ -22,6 +22,12 @@ class StepperThread:
         self.dir_queue = None
         self.step_queue = None
         self.continuous = continuous
+        # need to finish implementing software
+        # endstops. Should be able to detect if the stepper is at the end
+        self.steps_per_rev = steps_per_rev
+        self.max_step = max_step
+        self.min_step = min_step
+        self.current_step = 0
 
     def start(self):
         '''

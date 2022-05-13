@@ -94,8 +94,12 @@ def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False
                                   direction_pin=DIR_Y_PIN, enable_pin=ENABLE_Y_PIN, sleep_time=sleep_time).start()
         shoot_pin = Pin(pin=AIR_PIN)
 
+    sound_gap = 5
+    last_sound = 0
+
     if sound:
         play_sound(get_sound('turret_search'))
+        last_sound = time.time()
 
     try:
         while True:
@@ -158,12 +162,16 @@ def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False
                 if verbose:
                     print("Shooting")
                     if sound:
-                        play_sound(get_sound('turret_deploy'))
+                        if time.time() > last_sound + sound_gap:
+                            play_sound(get_sound('turret_deploy'))
+                            last_sound = time.time()
             else:
                 if not dry_run:
                     shoot_pin.off()
                     if sound:
-                        play_sound(get_sound('turret_retire'))
+                        if time.time() > last_sound + sound_gap:
+                            play_sound(get_sound('turret_retire'))
+                            last_sound = time.time()
 
             if display_mask:
                 cv2.imshow("Mask", mask)

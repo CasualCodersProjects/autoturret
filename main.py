@@ -4,6 +4,7 @@ import cv2
 import fire
 
 from detect import detect_hostiles
+from play_sound import get_sound, play_sound
 
 try:
     from stepper_control_thread import StepperThread
@@ -33,7 +34,7 @@ x_stepper = None
 y_stepper = None
 
 
-def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False, min_radius=50, scale=0, output_scale=0, hostile_output=False, shoot_box_x=50, shoot_box_y=50, sleep_time=0.0025):
+def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False, min_radius=50, scale=0, output_scale=0, hostile_output=False, shoot_box_x=50, shoot_box_y=50, sleep_time=0.0025, sound=False):
     '''
     The main sentry loop.
     '''
@@ -92,6 +93,9 @@ def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False
         y_stepper = StepperThread(step_pin=STEP_Y_PIN,
                                   direction_pin=DIR_Y_PIN, enable_pin=ENABLE_Y_PIN, sleep_time=sleep_time).start()
         shoot_pin = Pin(pin=AIR_PIN)
+
+    if sound:
+        play_sound(get_sound('turret_search'))
 
     try:
         while True:
@@ -153,9 +157,13 @@ def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False
                     shoot_pin.on()
                 if verbose:
                     print("Shooting")
+                    if sound:
+                        play_sound(get_sound('turret_deploy'))
             else:
                 if not dry_run:
                     shoot_pin.off()
+                    if sound:
+                        play_sound(get_sound('turret_retire'))
 
             if display_mask:
                 cv2.imshow("Mask", mask)

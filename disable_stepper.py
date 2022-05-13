@@ -1,6 +1,6 @@
 import RPi.GPIO as GPIO
 
-pins = [8, 36]
+pins = [8, 36, 37]
 
 GPIO.setmode(GPIO.BOARD)
 

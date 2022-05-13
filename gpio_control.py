@@ -7,6 +7,7 @@ class Pin:
 
     def setup(self):
         GPIO.setmode(GPIO.BOARD)
+        GPIO.setup(self.pin, GPIO.OUT)
 
     def set_value(self, value):
         GPIO.output(self.pin, value)

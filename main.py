@@ -93,6 +93,7 @@ def sentry(dry_run=False, verbose=False, display_frame=False, display_mask=False
         y_stepper = StepperThread(step_pin=STEP_Y_PIN,
                                   direction_pin=DIR_Y_PIN, enable_pin=ENABLE_Y_PIN, sleep_time=sleep_time).start()
         shoot_pin = Pin(pin=AIR_PIN)
+        shoot_pin.setup()
 
     sound_gap = 5
     last_sound = 0
